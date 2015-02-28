@@ -45,3 +45,22 @@ make_ymat <- function(raw_data = NULL, nspec = NULL, nsite = NULL, nyear = NULL)
   return(ymat)
 }
 
+# calculate inital z matrix from the y matrix
+
+initial_z <- function(ymat, nspec, nsite, nyear){
+  zinit <- array(dim = c(site, nspec, nyear))
+  
+  for (j in 1:site) {
+    for (i in 1:nspec) {
+      for (t in 1:nyear) {
+        zinit[j, i, t] <- ymat[i, j, t ] # change to one if greater than.
+      }
+    }
+  }
+  zinit[zinit>0] <- 1
+  return(zinit)
+  
+}
+  
+  
+ #ba
