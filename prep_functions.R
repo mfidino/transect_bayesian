@@ -3,7 +3,7 @@
 #
 # Functions to prepare matrices for analysis
 #
-#
+# Created by Mason Fidino
 #
 #
 
