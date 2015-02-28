@@ -1,0 +1,134 @@
+
+
+    model{
+    #### priors
+    
+    for(i in 1:nspec){
+    psi_in[i] ~ dbeta(1, 1)
+    }
+
+
+        for(i in 1:nspec){
+        gam[i] ~ dunif(-5, 5)
+        phi[i] ~ dunif(-5, 5)
+        }
+    
+    
+        # p hyperparameters
+    p_p ~ dbeta(1, 1)
+    mu_p <- log(p_p / (1 - p_p))
+    sigma_p ~ dunif(0,10)
+    tau_p <- pow(sigma_p, -2)
+    
+    
+    
+    
+    # housing hyperparamters for gamma
+    mu_housing_g ~ dnorm(0, 0.01)
+    sigma_housing_g ~ dunif(0, 10)
+    tau_housing_g <- pow(sigma_housing_g + 0.0001, -2)
+    
+    # housing hyperparamters for phi
+    mu_housing_p ~ dnorm(0, 0.01)
+    sigma_housing_p ~ dunif(0, 10)
+    tau_housing_p <- pow(sigma_housing_p + 0.0001, -2)
+    
+    # area hyperparamters for gamma
+    mu_area_g ~ dnorm(0, 0.01)
+    sigma_area_g ~ dunif(0, 10)
+    tau_area_g <- pow(sigma_area_g + 0.0001, -2)
+    
+    # area hyperparamters for phi
+    mu_area_p ~ dnorm(0, 0.01)
+    sigma_area_p ~ dunif(0, 10)
+    tau_area_p <- pow(sigma_area_p + 0.0001, -2)
+    
+    # canopy hyperparamters for gamma,
+    mu_canopy_g ~ dnorm(0, 0.01)
+    sigma_canopy_g ~ dunif(0, 10)
+    tau_canopy_g <- pow(sigma_canopy_g + 0.0001, -2)
+    
+    # canopy hyperparamters for phi
+    mu_canopy_p ~ dnorm(0, 0.01)
+    sigma_canopy_p ~ dunif(0, 10)
+    tau_canopy_p <- pow(sigma_canopy_p + 0.0001, -2)
+    
+    # prox hyperparamters for gamma
+    mu_prox_g ~ dnorm(0, 0.01)
+    sigma_prox_g ~ dunif(0, 10)
+    tau_prox_g <- pow(sigma_prox_g + 0.0001, -2)
+    
+    # prox hyperparamters for phi
+    mu_prox_p ~ dnorm(0, 0.01)
+    sigma_prox_p ~ dunif(0, 10)
+    tau_prox_p <- pow(sigma_prox_p + 0.0001, -2)
+    
+    
+    #### occupancy model, specify the formulation of random effects here
+    # species specific random effects
+    for (i in 1:(nspec)) {
+    housing_p[i] ~ dnorm(mu_housing_p, tau_housing_p)
+    housing_g[i] ~ dnorm(mu_housing_g, tau_housing_g)
+    area_p[i] ~ dnorm(mu_area_p, tau_area_p)
+    area_g[i] ~ dnorm(mu_area_g, tau_area_g)
+    canopy_p[i] ~ dnorm(mu_canopy_p, tau_canopy_p)
+    canopy_g[i] ~ dnorm(mu_canopy_g, tau_canopy_g)
+    prox_p[i] ~ dnorm(mu_prox_p, tau_prox_p)
+    prox_g[i] ~ dnorm(mu_prox_g, tau_prox_g)
+    }
+
+    # fixed effect of size on gamma
+    
+    size_g ~ dunif(-10,10)
+    
+    
+    
+    
+    
+    # occupancy states
+    for (j in 1:(site)) {
+    for (i in 1:(nspec)) {
+    z[j, i, 1] ~ dbern(psi_in[i])
+    for (t in 2:nyear) {
+    logit(psi[j, i, t]) <-  gam[i] * (1 - z[j, i, t-1]) + #####################
+    (housing_g[i] * cov[j, 2]) * (1 - z[j, i, t-1]) + ###
+    (area_g[i] * cov[j, 1]) * (1 - z[j, i, t-1]) +  ##### GAMMA STUFF AT t>1
+    (canopy_g[i] * cov[j, 3]) * (1 - z[j, i, t-1]) + ###
+    (prox_g[i] * cov[j, 4]) * (1 - z[j, i, t-1]) + ###
+    (size_g * cov[j, (i+4)]) * (1 - z[j, i, t-1]) + #############################
+    phi[i] * z[j, i, t-1] + ###===================================================
+    (housing_p[i] * cov[j, 2]) * z[j, i, t-1] + ###
+    (area_p[i] * cov[j, 1]) * z[j, i, t-1] +  ##### PHI STUFF AT t>1
+    (canopy_p[i] * cov[j, 3]) * z[j, i, t-1] + ###
+    (prox_p[i] * cov[j, 4]) * z[j, i, t-1] ###============================
+    z[j, i, t] ~ dbern(psi[j, i, t])
+    }
+    }
+    }
+    
+    
+    
+    
+    #### detection model # this needs to be reworked
+    for(i in 1:(nspec)){ 
+    lp[i] ~ dnorm(mu_p, tau_p) 
+    p[i] <- (exp(lp[i])) / (1 + exp(lp[i])) #This is the spot to fix correct?
+    }
+    
+    
+    #### observation model
+    for (t in 1:(nyear)){
+    for (j in 1:(site)){
+    for (i in 1:(nspec)){
+    
+    mu[j, i, t] <- z[j, i, t] * p[i]
+    y[i, j, t] ~ dbin(mu[j, i, t], jmat[i, j, t])
+    }
+    }
+    }
+    }
+    
+    
+    
+    
+    
