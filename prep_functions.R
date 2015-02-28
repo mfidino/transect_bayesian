@@ -7,16 +7,26 @@
 #
 #
 
-# makes the j matrix, requires the first level of the species array
-# i.e. n_obs <- big_array[[1]], the number of species, number of sites,
-# and number of seasons
+###++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#     make_jmat   make_jmat   make_jmat   make_jmat   make_jmat   make_jmat          
+###++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-# n_obs is sorted as a 3 dimensional array [# site, # sample days each season,
-# # seasons]
+#### contract
 
-# returns a a 3 dimensional array[# species, # sites, # years]
+  # makes the j matrix, requires the first level of the species array
+  # i.e. n_obs <- big_array[[1]], the number of species, number of sites,
+  # and number of seasons.
+
+  # n_obs is sorted as a 3 dimensional array [# site, # sample days each season,
+  # # seasons]
+
+  # returns a a 3 dimensional array[# species, # sites, # years]
 
 make_jmat <- function(n_obs = NULL, nspec = NULL, nsite = NULL, nyear = NULL){
+  if(missing(n_obs)|missing(nspec)|missing(nsite)|missing(nyear)){
+    stop("Need to include all arguments in this function.\n",
+         "\t\tCheck prep_functions.R and read make_jmats contract.")
+  }
   jmat <- array(0, dim = c(nspec, nsite, nyear))
   for(i in 1:nsite){
     for(j in 1:nyear){
@@ -26,10 +36,28 @@ make_jmat <- function(n_obs = NULL, nspec = NULL, nsite = NULL, nyear = NULL){
   return(jmat)
 }
 
-# makes the y matrix, uses the raw_data array, which is a list of multiple
-# arrays sorted as [# site, # days in season, # seasons]
+##################################################################################
+##################################################################################
+
+
+
+###++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#     make_ymat   make_ymat   make_ymat   make_ymat   make_ymat   make_ymat
+###++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+### Contract
+
+  # makes the y matrix, uses the raw_data array, which is the list of multiple
+  # arrays sorted as [# site, # days in season, # seasons].
+  # also requires specifications for array size of y matrix
+  # as the last three agruments
 
 make_ymat <- function(raw_data = NULL, nspec = NULL, nsite = NULL, nyear = NULL){
+  
+  if(missing(raw_data)|missing(nspec)|missing(nsite)|missing(nyear)){
+    stop("Need to include all arguments in this function.\n",
+         "\t\tCheck prep_functions.R and read make_ymats contract.")
+  }
   ymat <- array(0, dim = c(nspec, nsite, nyear))
   
   for(i in 1:nspec){
