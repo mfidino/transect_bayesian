@@ -38,6 +38,8 @@ make_jmat <- function(n_obs = NULL, nspec = NULL, nsite = NULL, nyear = NULL){
 
 ##################################################################################
 ##################################################################################
+##################################################################################
+
 
 
 
@@ -73,22 +75,57 @@ make_ymat <- function(raw_data = NULL, nspec = NULL, nsite = NULL, nyear = NULL)
   return(ymat)
 }
 
+
+##################################################################################
+##################################################################################
+##################################################################################
+
+
+
+
+
+###++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#    initial_z    initial_z     initial_z     initial_z     initial_z
+###++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+### Contract
+
+  # This function creates the intital Z matrix from the y matrix. Thus, you will
+  # need to include the dimensions via the number of sites, seasons, and species
+  # as well as the y matrix from the function make_ymat
+
+  # This will return a site by species by season array with a 1 if a species was
+  # detected, a 0 if it was not, and a NA if the camera was not operational
+  # during that entire season.
+
+
 # calculate inital z matrix from the y matrix
 
-initial_z <- function(ymat, nspec, nsite, nyear){
-  zinit <- array(dim = c(site, nspec, nyear))
+initial_z <- function(ymat = NULL, nspec = NULL, nsite = NULL, nyear = NULL){
   
+  if(missing(ymat)|missing(nspec)|missing(nsite)|missing(nyear)){
+    stop("Need to include all arguments in this function.\n",
+         "\t\tCheck prep_functions.R and read inital_zs contract.")
+  }
+  # make array
+  zinit <- array(dim = c(site, nspec, nyear))
+  # fill it in
   for (j in 1:site) {
     for (i in 1:nspec) {
       for (t in 1:nyear) {
-        zinit[j, i, t] <- ymat[i, j, t ] # change to one if greater than.
+        zinit[j, i, t] <- ymat[i, j, t ] 
       }
     }
   }
+  # change > 1 to 1
   zinit[zinit>0] <- 1
   return(zinit)
   
 }
+
+##################################################################################
+##################################################################################
+##################################################################################
   
   
- #ba
+
