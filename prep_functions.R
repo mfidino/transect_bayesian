@@ -108,12 +108,12 @@ initial_z <- function(ymat = NULL, nspec = NULL, nsite = NULL, nyear = NULL){
          "\t\tCheck prep_functions.R and read inital_zs contract.")
   }
   # make array
-  zinit <- array(dim = c(nsite, nspec, nyear))
+  zinit <- array(dim = c(nspec, nssite, nyear))
   # fill it in
   for (j in 1:nsite) {
     for (i in 1:nspec) {
       for (t in 1:nyear) {
-        zinit[j, i, t] <- ymat[i, j, t ] 
+        zinit[i, j, t] <- ymat[i, j, t ] 
       }
     }
   }
